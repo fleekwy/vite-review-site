@@ -1,13 +1,60 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>vite-review-site</title>
-  </head>
-  <body>
-    <div id="app"></div>
-    <script type="module" src="/src/main.ts"></script>
-  </body>
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="review site">
+    <meta name="author" content="Даниил Кондратюк">
+
+    <title>Отзывы - fleekwy</title>
+
+    <link rel="icon" id="favicon" href="/src/images/icons/favicon_active.ico">
+
+    <link rel="stylesheet" href="/src/css/variables.scss">
+    <link rel="stylesheet" href="/src/css/styles/body.scss">
+    <link rel="stylesheet" href="/src/css/styles/header.scss">
+    <link rel="stylesheet" href="/src/css/styles/main.scss">
+    <link rel="stylesheet" href="/src/css/styles/buttons.scss">
+
+    <script src="/src/js/header.js" defer></script>
+    <script src="/src/js/rating.js" defer></script>
+    <script src="/src/js/main.js" defer></script>
+    <script src="/src/js/clock.js" defer></script>
+</head>
+
+<body>
+
+    <header class="main-header">
+        <span class="real-time-clock"></span>
+        <section class="switch-lang">
+            <button class="lang-btn" id="lang-btn-ru">RU</button>
+            <button class="lang-btn" id="lang-btn-zh">ZH</button>
+        </section>
+    </header>
+
+    <main>
+        <h2 class="label">Поставь отзыв!</h2>
+
+        <section class="feedback-area">
+            <div class="stars-container">
+                <button class="star" data-rating="1"></button>
+                <button class="star" data-rating="2"></button>
+                <button class="star" data-rating="3"></button>
+                <button class="star" data-rating="4"></button>
+                <button class="star" data-rating="5"></button>
+            </div>
+
+            <form class="feedback-interaction-area">
+                <textarea class="feedback-text" name="feedback_text" rows="4"
+                    placeholder="Напишите текст отзыва"></textarea>
+
+                <button type="submit" class="submit-btn" id="submit-btn" disabled>Отправить отзыв</button>
+            </form>
+        </section>
+
+    </main>
+
+</body>
+
 </html>

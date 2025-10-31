@@ -1,30 +1,15 @@
-# --- ЭТАП 1: СБОРКА ПРОЕКТА ---
 FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# Копируем package.json и устанавливаем ВСЕ зависимости для сборки
 COPY package*.json ./
 RUN npm ci
-
-# Копируем все исходники проекта
 COPY . .
-
-# Собираем проект
 RUN npm run build
-
-
-# --- ЭТАП 2: СОЗДАНИЕ PRODUCTION-ОБРАЗА С NGINX ---
 FROM nginx:stable-alpine
 
-# Копируем кастомный конфиг Nginx
 COPY nginx.conf /etc/nginx/conf.d/default.conf
-
-# Копируем собранные файлы из ЭТАПА 1
 COPY --from=builder /app/dist /usr/share/nginx/html
 
-# Открываем стандартный порт Nginx
 EXPOSE 80
-
-# Команда для запуска Nginx
 CMD ["nginx", "-g", "daemon off;"]

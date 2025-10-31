@@ -7,24 +7,24 @@ const RATING_STORAGE_KEY = 'StarRating';
 const TEXT_STORAGE_KEY = 'FeedbackText';
 const CLOSE_TABS_KEY = 'CloseAllTabsSignal';
 
-if (starsContainer instanceof HTMLElement &&
+if (
+    starsContainer instanceof HTMLElement &&
     feedbackForm instanceof HTMLFormElement &&
     submitButton instanceof HTMLButtonElement &&
-    feedbackText instanceof HTMLTextAreaElement) {
-
+    feedbackText instanceof HTMLTextAreaElement
+) {
     const allStars: HTMLElement[] = Array.from(starsContainer.children).filter(
         (child) => child instanceof HTMLElement
     );
 
     if (allStars.length > 0) {
-
         const firstStar = allStars[0];
         const lastStar = allStars[allStars.length - 1];
 
         let currentRating: number = 0;
 
         const resetStars = (): void => {
-            allStars.forEach(star => {
+            allStars.forEach((star) => {
                 star.className = 'star';
             });
         };
@@ -61,7 +61,7 @@ if (starsContainer instanceof HTMLElement &&
             }
 
             const isTextEntered = feedbackText.value.trim() !== '';
-            if ((rating >= 4) || isTextEntered) {
+            if (rating >= 4 || isTextEntered) {
                 submitButton.disabled = false;
                 if (rating >= 4) {
                     localStorage.removeItem(TEXT_STORAGE_KEY);
@@ -96,7 +96,6 @@ if (starsContainer instanceof HTMLElement &&
             });
 
             star.addEventListener('click', (): void => {
-
                 updateRatingState(rating);
 
                 setTimeout(() => {
@@ -105,7 +104,6 @@ if (starsContainer instanceof HTMLElement &&
                 }, 1000);
             });
         });
-
 
         let textSyncTimeout: ReturnType<typeof setTimeout>;
         feedbackText.addEventListener('input', (): void => {
@@ -123,16 +121,14 @@ if (starsContainer instanceof HTMLElement &&
         });
 
         window.addEventListener('storage', (event: StorageEvent): void => {
-
             if (event.key === RATING_STORAGE_KEY && event.newValue) {
-
                 try {
                     const newRating = JSON.parse(event.newValue);
                     if (typeof newRating === 'number') {
                         updateRatingState(newRating);
                     }
                 } catch (e) {
-                    console.error("Ошибка синхронизации рейтинга:", e);
+                    console.error('Ошибка синхронизации рейтинга:', e);
                 }
             }
             if (event.key === TEXT_STORAGE_KEY && event.newValue) {
@@ -140,7 +136,6 @@ if (starsContainer instanceof HTMLElement &&
 
                 feedbackText.value = event.newValue;
                 updateRatingState(currentRating);
-
             }
             if (event.key === CLOSE_TABS_KEY && event.newValue === 'Y') {
                 window.close();
@@ -168,7 +163,6 @@ if (starsContainer instanceof HTMLElement &&
             }, 200);
         });
 
-
         // ================ИНИЦИАЛИЗАЦИЯ==============================
 
         const savedText = localStorage.getItem(TEXT_STORAGE_KEY);
@@ -184,7 +178,7 @@ if (starsContainer instanceof HTMLElement &&
                     updateRatingState(savedRating);
                 }
             } catch (e) {
-                console.error("Failed to parse initial rating:", e);
+                console.error('Failed to parse initial rating:', e);
                 updateRatingState(0);
             }
         } else {

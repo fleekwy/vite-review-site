@@ -18,34 +18,39 @@ function getSavedLanguage(): Language {
     return 'ru';
 }
 
-
 if (clockElement && ruButton && zhButton) {
-
     const locales = {
         ru: new Intl.DateTimeFormat('ru-RU', {
-            hour: '2-digit', minute: '2-digit', second: '2-digit',
-            day: '2-digit', month: '2-digit', weekday: 'long'
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            day: '2-digit',
+            month: '2-digit',
+            weekday: 'long',
         }),
         zh: new Intl.DateTimeFormat('zh-CN', {
-            hour: '2-digit', minute: '2-digit', second: '2-digit',
-            day: '2-digit', month: '2-digit', weekday: 'long'
-        })
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            day: '2-digit',
+            month: '2-digit',
+            weekday: 'long',
+        }),
     };
 
     let currentLang: Language = getSavedLanguage();
     let lastDisplayedDate: Date = new Date();
 
-    function formatClockString(date: Date): string {
+    const formatClockString = (date: Date): string => {
         return locales[currentLang].format(date);
-    }
+    };
 
-    function updateClock(): void {
+    const updateClock = (): void => {
         lastDisplayedDate = new Date();
         clockElement!.textContent = formatClockString(lastDisplayedDate);
-    }
+    };
 
-    function startSmartInterval() {
-
+    const startSmartInterval = (): void => {
         const now: Date = new Date();
         const milliseconds: number = now.getMilliseconds() + now.getSeconds() * 1000;
 
@@ -55,7 +60,7 @@ if (clockElement && ruButton && zhButton) {
             updateClock();
             startSmartInterval();
         }, msecondsToTen);
-    }
+    };
 
     ruButton.addEventListener('click', (event: MouseEvent) => {
         event.stopPropagation();
@@ -76,7 +81,6 @@ if (clockElement && ruButton && zhButton) {
     });
 
     window.addEventListener('storage', (event: StorageEvent) => {
-
         if (event.key === LANG_STORAGE_KEY) {
             console.log('Получено событие синхронизации языка из другой вкладки!');
             const newLang = event.newValue;

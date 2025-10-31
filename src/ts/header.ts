@@ -1,11 +1,10 @@
-const main_header: HTMLElement | null = document.querySelector(".main-header");
+const main_header: HTMLElement | null = document.querySelector('.main-header');
 
 if (main_header) {
-
     let scrollTimeout: ReturnType<typeof setTimeout>;
 
     document.addEventListener('click', (event: MouseEvent): void => {
-        if (event.target instanceof Element && !event.target.closest("button, textarea, a")) {
+        if (event.target instanceof Element && !event.target.closest('button, textarea, a')) {
             main_header.classList.add('main-header-clicked');
 
             setTimeout(() => {
@@ -15,7 +14,6 @@ if (main_header) {
     });
 
     window.addEventListener('scroll', (): void => {
-
         main_header.classList.add('main-header-scrolled');
 
         clearTimeout(scrollTimeout);
@@ -26,7 +24,7 @@ if (main_header) {
     });
 
     document.addEventListener('keydown', (event: KeyboardEvent) => {
-        if (event.target instanceof Element && !event.target.closest("textarea")) {
+        if (event.target instanceof Element && !event.target.closest('textarea')) {
             if (event.key === ' ') {
                 main_header.classList.add('main-header-spaced');
 

@@ -7,8 +7,11 @@ import './clock.ts';
 const favicon: HTMLElement | null = document.getElementById('favicon');
 const change_lang_ru: HTMLElement | null = document.getElementById('lang-btn-ru');
 const change_lang_zh: HTMLElement | null = document.getElementById('lang-btn-zh');
+function isHTMLLinkElement(value: unknown): value is HTMLLinkElement {
+    return value instanceof HTMLLinkElement;
+}
 
-if (favicon instanceof HTMLLinkElement && change_lang_ru && change_lang_zh) {
+if (isHTMLLinkElement(favicon) && change_lang_ru && change_lang_zh) {
     const originalFavicon: string = favicon.href;
     const originalTitle: string = document.title;
 

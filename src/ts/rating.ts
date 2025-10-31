@@ -7,11 +7,27 @@ const RATING_STORAGE_KEY = 'StarRating';
 const TEXT_STORAGE_KEY = 'FeedbackText';
 const CLOSE_TABS_KEY = 'CloseAllTabsSignal';
 
+function isHTMLElement(value: unknown): value is HTMLElement {
+    return value instanceof HTMLElement;
+}
+
+function isHTMLFormElement(value: unknown): value is HTMLFormElement {
+    return value instanceof HTMLFormElement;
+}
+
+function isHTMLButtonElement(value: unknown): value is HTMLButtonElement {
+    return value instanceof HTMLButtonElement;
+}
+
+function isHTMLTextAreaElement(value: unknown): value is HTMLTextAreaElement {
+    return value instanceof HTMLTextAreaElement;
+}
+
 if (
-    starsContainer instanceof HTMLElement &&
-    feedbackForm instanceof HTMLFormElement &&
-    submitButton instanceof HTMLButtonElement &&
-    feedbackText instanceof HTMLTextAreaElement
+    isHTMLElement(starsContainer) &&
+    isHTMLFormElement(feedbackForm) &&
+    isHTMLButtonElement(submitButton) &&
+    isHTMLTextAreaElement(feedbackText)
 ) {
     const allStars: HTMLElement[] = Array.from(starsContainer.children).filter(
         (child) => child instanceof HTMLElement
@@ -44,8 +60,10 @@ if (
                     }
                 });
             } else {
-                for (let i = 0; i < rating; i++) {
-                    allStars[i]?.classList.add('active-feedback-normal');
+                if (allStars.length >= rating) {
+                    for (let i = 0; i < rating; i++) {
+                        allStars[i].classList.add('active-feedback-normal');
+                    }
                 }
             }
         };

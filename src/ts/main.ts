@@ -5,26 +5,30 @@ import './rating.ts';
 import './clock.ts';
 
 const favicon: HTMLElement | null = document.getElementById('favicon');
-const change_lang_ru: HTMLElement | null = document.getElementById('lang-btn-ru');
-const change_lang_zh: HTMLElement | null = document.getElementById('lang-btn-zh');
 function isHTMLLinkElement(value: unknown): value is HTMLLinkElement {
     return value instanceof HTMLLinkElement;
 }
 
-if (isHTMLLinkElement(favicon) && change_lang_ru && change_lang_zh) {
-    const originalFavicon: string = favicon.href;
-    const originalTitle: string = document.title;
-
+if (isHTMLLinkElement(favicon)) {
+    const originalFavicon = favicon.href;
     const inactiveFavicon: string = '/public/images/icons/favicon_inactive.ico';
-    const inactiveTitle: string = 'Хочешь печеньку? 🍪';
 
     document.addEventListener('visibilitychange', () => {
         if (document.visibilityState === 'hidden') {
-            document.title = inactiveTitle;
             favicon.href = inactiveFavicon;
         } else {
-            document.title = originalTitle;
             favicon.href = originalFavicon;
         }
     });
 }
+
+const originalTitle: string = document.title;
+const inactiveTitle: string = 'Хочешь печеньку? 🍪';
+
+document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') {
+        document.title = inactiveTitle;
+    } else {
+        document.title = originalTitle;
+    }
+});

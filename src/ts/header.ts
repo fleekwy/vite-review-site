@@ -1,13 +1,19 @@
 const main_header: HTMLElement | null = document.getElementById('main-header');
 
 if (main_header) {
+    let clickTimeout: ReturnType<typeof setTimeout>;
     let scrollTimeout: ReturnType<typeof setTimeout>;
+    let spaceTimeout: ReturnType<typeof setTimeout>;
 
     document.addEventListener('click', (event: MouseEvent): void => {
         if (event.target instanceof Element && !event.target.closest('button, textarea, a')) {
             main_header.classList.add('main-header-clicked');
+            main_header.classList.remove('main-header-scrolled');
+            main_header.classList.remove('main-header-spaced');
 
-            setTimeout(() => {
+            clearTimeout(clickTimeout);
+
+            clickTimeout = setTimeout(() => {
                 main_header.classList.remove('main-header-clicked');
             }, 1000);
         }
@@ -15,6 +21,8 @@ if (main_header) {
 
     window.addEventListener('scroll', (): void => {
         main_header.classList.add('main-header-scrolled');
+        main_header.classList.remove('main-header-clicked');
+        main_header.classList.remove('main-header-spaced');
 
         clearTimeout(scrollTimeout);
 
@@ -25,10 +33,14 @@ if (main_header) {
 
     document.addEventListener('keydown', (event: KeyboardEvent) => {
         if (event.target instanceof Element && !event.target.closest('textarea')) {
-            if (event.key === ' ') {
+            if (event.code === 'Space') {
                 main_header.classList.add('main-header-spaced');
+                main_header.classList.remove('main-header-clicked');
+                main_header.classList.remove('main-header-scrolled');
 
-                setTimeout(() => {
+                clearTimeout(spaceTimeout);
+
+                spaceTimeout = setTimeout(() => {
                     main_header.classList.remove('main-header-spaced');
                 }, 1000);
             }

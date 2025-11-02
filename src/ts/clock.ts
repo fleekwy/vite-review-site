@@ -1,6 +1,6 @@
 type Language = 'ru' | 'zh';
 
-const clockElement: HTMLElement | null = document.querySelector('.real-time-clock');
+const clockElement: HTMLElement | null = document.getElementById('real-time-clock');
 const ruButton: HTMLElement | null = document.getElementById('lang-btn-ru');
 const zhButton: HTMLElement | null = document.getElementById('lang-btn-zh');
 

@@ -1,4 +1,4 @@
-const main_header: HTMLElement | null = document.querySelector('.main-header');
+const main_header: HTMLElement | null = document.getElementById('main-header');
 
 if (main_header) {
     let scrollTimeout: ReturnType<typeof setTimeout>;

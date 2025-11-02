@@ -1,7 +1,7 @@
-const starsContainer: Element | null = document.querySelector('.stars-container');
-const feedbackForm: Element | null = document.querySelector('.feedback-interaction-area');
-const submitButton: Element | null = document.getElementById('submit-btn');
-const feedbackText: Element | null = document.querySelector('.feedback-text');
+const starsContainer: HTMLElement | null = document.getElementById('stars-container');
+const feedbackForm: HTMLElement | null = document.getElementById('feedback-interaction-area');
+const submitButton: HTMLElement | null = document.getElementById('submit-btn');
+const feedbackText: HTMLElement | null = document.getElementById('feedback-text');
 
 const RATING_STORAGE_KEY = 'StarRating';
 const TEXT_STORAGE_KEY = 'FeedbackText';

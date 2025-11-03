@@ -1,8 +1,7 @@
-version: '3.8'
-
 services:
     vite-preview:
-        container_name: my-site-vite
+        container_name: site-vite
+        image: site-vite-preview:simp
         build:
             context: .
             dockerfile: Dockerfile.vite
@@ -15,18 +14,22 @@ services:
         restart: unless-stopped
 
     nginx:
-        container_name: my-site-nginx
+        container_name: site-nginx
+        image: site-nginx:simp
         build:
             context: .
             dockerfile: Dockerfile.nginx
         ports:
             - '${HOST_PORT_NGINX}:${CONTAINER_PORT_NGINX}'
+        environment:
+            - CONTAINER_PORT=${CONTAINER_PORT_NGINX}
         env_file:
             - .env
         restart: unless-stopped
 
     serve:
-        container_name: my-site-serve
+        container_name: site-serve
+        image: site-serve:simp
         build:
             context: .
             dockerfile: Dockerfile.serve

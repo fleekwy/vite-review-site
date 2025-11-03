@@ -1,10 +1,6 @@
-# Папка сборки
 dist
-
-# Зависимости
 node_modules
 
-# Локальные файлы Vite
 .DS_Store
 .env.local
 .env.*.local

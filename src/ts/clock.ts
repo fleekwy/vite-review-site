@@ -20,29 +20,22 @@ function getSavedLanguage(): Language {
 
 if (clockElement && ruButton && zhButton) {
     const locales = {
-        ru: new Intl.DateTimeFormat('ru-RU', {
-            hour: '2-digit',
-            minute: '2-digit',
-            second: '2-digit',
-            day: '2-digit',
-            month: '2-digit',
-            weekday: 'long',
-        }),
-        zh: new Intl.DateTimeFormat('zh-CN', {
-            hour: '2-digit',
-            minute: '2-digit',
-            second: '2-digit',
-            day: '2-digit',
-            month: '2-digit',
-            weekday: 'long',
-        }),
+        ru: 'ru-RU',
+        zh: 'zh-CN',
     };
 
     let currentLang: Language = getSavedLanguage();
     let lastDisplayedDate: Date = new Date();
 
     const formatClockString = (date: Date): string => {
-        return locales[currentLang].format(date);
+        return new Intl.DateTimeFormat(locales[currentLang], {
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            day: '2-digit',
+            month: '2-digit',
+            weekday: 'long',
+        }).format(date);
     };
 
     const updateClock = (): void => {

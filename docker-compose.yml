@@ -1,8 +1,7 @@
-version: '3.8'
-
 services:
     vite-preview:
-        container_name: my-site-vite
+        container_name: site-vite-preview
+        image: site-vite-preview:1.0.0
         build:
             context: .
             dockerfile: Dockerfile.vite
@@ -15,7 +14,8 @@ services:
         restart: unless-stopped
 
     nginx:
-        container_name: my-site-nginx
+        container_name: site-nginx
+        image: site-nginx:1.0.0
         build:
             context: .
             dockerfile: Dockerfile.nginx
@@ -26,7 +26,8 @@ services:
         restart: unless-stopped
 
     serve:
-        container_name: my-site-serve
+        container_name: site-serve
+        image: site-serve:1.0.0
         build:
             context: .
             dockerfile: Dockerfile.serve

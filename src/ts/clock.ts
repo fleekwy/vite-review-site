@@ -6,6 +6,10 @@ const zhButton: HTMLElement | null = document.getElementById('lang-btn-zh');
 
 const LANG_STORAGE_KEY = 'ClockLanguage';
 
+function isHTMLElement(value: unknown): value is HTMLElement {
+    return value instanceof HTMLElement;
+}
+
 function isLanguage(value: unknown): value is Language {
     return value === 'ru' || value === 'zh';
 }
@@ -69,27 +73,49 @@ if (clockElement) {
     //     }, msecondsToTen);
     // };
 
-    if (ruButton) {
-        ruButton.addEventListener('click', (event: MouseEvent) => {
-            event.stopPropagation();
-            if (currentLang !== 'ru') {
-                currentLang = 'ru';
+    const changeLang = (event: MouseEvent): void => {
+        event.stopPropagation();
+
+        const button: unknown = event.currentTarget;
+        if (isHTMLElement(button)) {
+            const newLang: unknown = button.dataset.lang;
+            if (isLanguage(newLang) && newLang !== currentLang) {
+                currentLang = newLang;
                 localStorage.setItem(LANG_STORAGE_KEY, currentLang);
                 clockElement.textContent = formatClockString(lastDisplayedDate);
             }
-        });
+        }
+    };
+
+    if (ruButton) {
+        ruButton.onclick = changeLang;
     }
 
     if (zhButton) {
-        zhButton.addEventListener('click', (event: MouseEvent) => {
-            event.stopPropagation();
-            if (currentLang !== 'zh') {
-                currentLang = 'zh';
-                localStorage.setItem(LANG_STORAGE_KEY, currentLang);
-                clockElement.textContent = formatClockString(lastDisplayedDate);
-            }
-        });
+        zhButton.onclick = changeLang;
     }
+
+    // if (ruButton) {
+    //     ruButton.addEventListener('click', (event: MouseEvent) => {
+    //         event.stopPropagation();
+    //         if (currentLang !== 'ru') {
+    //             currentLang = 'ru';
+    //             localStorage.setItem(LANG_STORAGE_KEY, currentLang);
+    //             clockElement.textContent = formatClockString(lastDisplayedDate);
+    //         }
+    //     });
+    // }
+
+    // if (zhButton) {
+    //     zhButton.addEventListener('click', (event: MouseEvent) => {
+    //         event.stopPropagation();
+    //         if (currentLang !== 'zh') {
+    //             currentLang = 'zh';
+    //             localStorage.setItem(LANG_STORAGE_KEY, currentLang);
+    //             clockElement.textContent = formatClockString(lastDisplayedDate);
+    //         }
+    //     });
+    // }
 
     window.addEventListener('storage', (event: StorageEvent) => {
         if (event.key === LANG_STORAGE_KEY) {

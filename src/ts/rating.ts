@@ -6,6 +6,7 @@ const feedbackText: HTMLElement | null = document.getElementById('feedback-text'
 const RATING_STORAGE_KEY = 'StarRating';
 const TEXT_STORAGE_KEY = 'FeedbackText';
 const CLOSE_TABS_KEY = 'CloseAllTabsSignal';
+let currentRating: number = 0;
 
 function isHTMLElement(value: unknown): value is HTMLElement {
     return value instanceof HTMLElement;
@@ -23,12 +24,76 @@ function isHTMLTextAreaElement(value: unknown): value is HTMLTextAreaElement {
     return value instanceof HTMLTextAreaElement;
 }
 
-if (
-    isHTMLElement(starsContainer) &&
-    isHTMLFormElement(feedbackForm) &&
-    isHTMLButtonElement(submitButton) &&
-    isHTMLTextAreaElement(feedbackText)
-) {
+function resetStars(allStars: HTMLElement[]): void {
+    allStars.forEach((star) => {
+        star.className = 'star';
+    });
+}
+
+function setActiveState(rating: number): void {
+    if (!isHTMLElement(starsContainer)) return; // Звезды не существуют, ничего не делаем
+
+    const allStars: HTMLElement[] = Array.from(starsContainer.children).filter(
+        (child) => child instanceof HTMLElement
+    );
+
+    if (allStars.length === 0) return;
+
+    const firstStar = allStars[0];
+    const lastStar = allStars[allStars.length - 1];
+
+    resetStars(allStars);
+    if (rating === 0) return;
+
+    if (rating === 1) {
+        firstStar.classList.add('active-feedback-low');
+    } else if (rating === allStars.length) {
+        allStars.forEach((star, index) => {
+            if (index < rating - 1) {
+                star.classList.add('active-feedback-normal');
+            } else {
+                lastStar.classList.add('active-feedback-high');
+            }
+        });
+    } else {
+        if (allStars.length >= rating) {
+            for (let i = 0; i < rating; i++) {
+                allStars[i].classList.add('active-feedback-normal');
+            }
+        }
+    }
+}
+
+function updateRatingState(rating: number): void {
+    currentRating = rating;
+    setActiveState(rating);
+
+    if (isHTMLFormElement(feedbackForm)) {
+        if (rating > 0 && rating <= 3) {
+            feedbackForm.classList.add('is-text-active');
+        } else {
+            feedbackForm.classList.remove('is-text-active');
+        }
+    }
+
+    let isTextEntered = false;
+    if (isHTMLTextAreaElement(feedbackText)) {
+        isTextEntered = feedbackText.value.trim() !== '';
+    }
+    if (isHTMLButtonElement(submitButton)) {
+        if (rating >= 4 || isTextEntered) {
+            submitButton.disabled = false;
+            if (rating >= 4 && isHTMLTextAreaElement(feedbackText)) {
+                localStorage.removeItem(TEXT_STORAGE_KEY);
+                feedbackText.value = '';
+            }
+        } else {
+            submitButton.disabled = true;
+        }
+    }
+}
+
+if (isHTMLElement(starsContainer)) {
     const allStars: HTMLElement[] = Array.from(starsContainer.children).filter(
         (child) => child instanceof HTMLElement
     );
@@ -37,57 +102,10 @@ if (
         const firstStar = allStars[0];
         const lastStar = allStars[allStars.length - 1];
 
-        let currentRating: number = 0;
-
         const resetStars = (): void => {
             allStars.forEach((star) => {
                 star.className = 'star';
             });
-        };
-
-        const setActiveState = (rating: number): void => {
-            resetStars();
-            if (rating === 0) return;
-
-            if (rating === 1) {
-                firstStar.classList.add('active-feedback-low');
-            } else if (rating === allStars.length) {
-                allStars.forEach((star, index) => {
-                    if (index < rating - 1) {
-                        star.classList.add('active-feedback-normal');
-                    } else {
-                        lastStar.classList.add('active-feedback-high');
-                    }
-                });
-            } else {
-                if (allStars.length >= rating) {
-                    for (let i = 0; i < rating; i++) {
-                        allStars[i].classList.add('active-feedback-normal');
-                    }
-                }
-            }
-        };
-
-        const updateRatingState = (rating: number): void => {
-            currentRating = rating;
-            setActiveState(rating);
-
-            if (rating > 0 && rating <= 3) {
-                feedbackForm.classList.add('is-text-active');
-            } else {
-                feedbackForm.classList.remove('is-text-active');
-            }
-
-            const isTextEntered = feedbackText.value.trim() !== '';
-            if (rating >= 4 || isTextEntered) {
-                submitButton.disabled = false;
-                if (rating >= 4) {
-                    localStorage.removeItem(TEXT_STORAGE_KEY);
-                    feedbackText.value = '';
-                }
-            } else {
-                submitButton.disabled = true;
-            }
         };
 
         allStars.forEach((star, index) => {
@@ -123,86 +141,94 @@ if (
             });
         });
 
-        let textSyncTimeout: ReturnType<typeof setTimeout>;
-        feedbackText.addEventListener('input', (): void => {
-            feedbackText.style.height = 'auto';
-            feedbackText.style.height = `${feedbackText.scrollHeight}px`;
-
-            updateRatingState(currentRating);
-
-            clearTimeout(textSyncTimeout);
-
-            textSyncTimeout = setTimeout(() => {
-                localStorage.setItem(TEXT_STORAGE_KEY, feedbackText.value);
-                console.log(`Текст отзыва сохранен для синхронизации.`);
-            }, 2000);
-        });
-
-        window.addEventListener('storage', (event: StorageEvent): void => {
-            if (event.key === RATING_STORAGE_KEY && event.newValue) {
-                try {
-                    const newRating = JSON.parse(event.newValue);
-                    if (typeof newRating === 'number') {
-                        updateRatingState(newRating);
-                    }
-                } catch (e) {
-                    console.error('Ошибка синхронизации рейтинга:', e);
-                }
-            }
-            if (event.key === TEXT_STORAGE_KEY && event.newValue) {
-                console.log('Получено событие синхронизации текста!');
-
-                feedbackText.value = event.newValue;
-                updateRatingState(currentRating);
-            }
-            if (event.key === CLOSE_TABS_KEY && event.newValue === 'Y') {
-                window.close();
-            }
-        });
-
         starsContainer.addEventListener('mouseleave', () => {
             setActiveState(currentRating);
         });
+    }
+}
 
-        feedbackForm.addEventListener('submit', (event: SubmitEvent) => {
-            event.preventDefault();
+if (isHTMLTextAreaElement(feedbackText)) {
+    let textSyncTimeout: ReturnType<typeof setTimeout>;
+    feedbackText.addEventListener('input', (): void => {
+        feedbackText.style.height = 'auto';
+        feedbackText.style.height = `${feedbackText.scrollHeight}px`;
 
-            localStorage.removeItem(TEXT_STORAGE_KEY);
-            feedbackText.value = '';
-            localStorage.removeItem(RATING_STORAGE_KEY);
-            updateRatingState(0);
+        updateRatingState(currentRating);
 
-            console.log('Рейтинг и текст сброшены и удалены из хранилища.');
+        clearTimeout(textSyncTimeout);
 
-            localStorage.setItem(CLOSE_TABS_KEY, 'Y');
-            setTimeout(() => {
-                localStorage.removeItem(CLOSE_TABS_KEY);
-                window.close();
-            }, 200);
-        });
+        textSyncTimeout = setTimeout(() => {
+            localStorage.setItem(TEXT_STORAGE_KEY, feedbackText.value);
+            console.log(`Текст отзыва сохранен для синхронизации.`);
+        }, 2000);
+    });
 
-        // ================ИНИЦИАЛИЗАЦИЯ==============================
-
-        const savedText = localStorage.getItem(TEXT_STORAGE_KEY);
-        if (savedText) {
-            feedbackText.value = savedText;
-        }
-
-        const savedRatingRaw = localStorage.getItem(RATING_STORAGE_KEY);
-        if (savedRatingRaw) {
+    window.addEventListener('storage', (event: StorageEvent): void => {
+        if (event.key === RATING_STORAGE_KEY && event.newValue) {
             try {
-                const savedRating = JSON.parse(savedRatingRaw);
-                if (typeof savedRating === 'number') {
-                    updateRatingState(savedRating);
+                const newRating = JSON.parse(event.newValue);
+                if (typeof newRating === 'number') {
+                    updateRatingState(newRating);
                 }
             } catch (e) {
-                console.error('Failed to parse initial rating:', e);
-                updateRatingState(0);
+                console.error('Ошибка синхронизации рейтинга:', e);
             }
-        } else {
+        }
+        if (event.key === TEXT_STORAGE_KEY && event.newValue) {
+            console.log('Получено событие синхронизации текста!');
+
+            feedbackText.value = event.newValue;
+            updateRatingState(currentRating);
+        }
+        if (event.key === CLOSE_TABS_KEY && event.newValue === 'Y') {
+            window.close();
+        }
+    });
+}
+
+if (isHTMLFormElement(feedbackForm)) {
+    feedbackForm.addEventListener('submit', (event: SubmitEvent) => {
+        event.preventDefault();
+
+        localStorage.removeItem(TEXT_STORAGE_KEY);
+        if (isHTMLTextAreaElement(feedbackText)) {
+            // Доп. проверка
+            feedbackText.value = '';
+        }
+        localStorage.removeItem(RATING_STORAGE_KEY);
+        updateRatingState(0);
+
+        console.log('Рейтинг и текст сброшены и удалены из хранилища.');
+
+        localStorage.setItem(CLOSE_TABS_KEY, 'Y');
+        setTimeout(() => {
+            localStorage.removeItem(CLOSE_TABS_KEY);
+            window.close();
+        }, 200);
+    });
+}
+
+// ================ИНИЦИАЛИЗАЦИЯ==============================
+if (isHTMLTextAreaElement(feedbackText)) {
+    const savedText = localStorage.getItem(TEXT_STORAGE_KEY);
+    if (savedText) {
+        feedbackText.value = savedText;
+    }
+
+    const savedRatingRaw = localStorage.getItem(RATING_STORAGE_KEY);
+    if (savedRatingRaw) {
+        try {
+            const savedRating = JSON.parse(savedRatingRaw);
+            if (typeof savedRating === 'number') {
+                updateRatingState(savedRating);
+            }
+        } catch (e) {
+            console.error('Failed to parse initial rating:', e);
             updateRatingState(0);
         }
-
-        // ===========================================================
+    } else {
+        updateRatingState(0);
     }
+
+    // ===========================================================
 }

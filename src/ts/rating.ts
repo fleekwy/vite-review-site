@@ -1,7 +1,7 @@
 const starsContainer: HTMLElement | null = document.getElementById('stars-container');
-const feedbackForm: HTMLElement | null = document.getElementById('feedback-interaction-area');
+const feedbackArea: HTMLElement | null = document.getElementById('feedback-interaction-area');
 const submitButton: HTMLElement | null = document.getElementById('submit-btn');
-const feedbackText: HTMLElement | null = document.getElementById('feedback-text');
+const feedbackForm: HTMLElement | null = document.getElementById('feedback-form');
 
 const RATING_STORAGE_KEY = 'StarRating';
 const TEXT_STORAGE_KEY = 'FeedbackText';
@@ -24,68 +24,52 @@ function isHTMLTextAreaElement(value: unknown): value is HTMLTextAreaElement {
     return value instanceof HTMLTextAreaElement;
 }
 
-function resetStars(allStars: HTMLElement[]): void {
-    allStars.forEach((star) => {
-        star.className = 'star';
-    });
-}
-
 function setActiveState(rating: number): void {
-    if (!isHTMLElement(starsContainer)) return; // Звезды не существуют, ничего не делаем
+    if (!isHTMLElement(starsContainer)) return;
 
     const allStars: HTMLElement[] = Array.from(starsContainer.children).filter(
         (child) => child instanceof HTMLElement
     );
 
-    if (allStars.length === 0) return;
+    if (allStars.length !== 5) return;
 
-    const firstStar = allStars[0];
-    const lastStar = allStars[allStars.length - 1];
-
-    resetStars(allStars);
-    if (rating === 0) return;
-
-    if (rating === 1) {
-        firstStar.classList.add('active-feedback-low');
-    } else if (rating === allStars.length) {
-        allStars.forEach((star, index) => {
-            if (index < rating - 1) {
-                star.classList.add('active-feedback-normal');
+    allStars.forEach((star, index) => {
+        if (index > rating - 1) {
+            star.className = 'star';
+        } else {
+            if (rating === 1 && index == 0) {
+                star.classList.add('active-feedback-low');
+            } else if (rating === allStars.length && index === rating - 1) {
+                star.classList.add('active-feedback-high');
             } else {
-                lastStar.classList.add('active-feedback-high');
-            }
-        });
-    } else {
-        if (allStars.length >= rating) {
-            for (let i = 0; i < rating; i++) {
-                allStars[i].classList.add('active-feedback-normal');
+                star.classList.add('active-feedback-normal');
             }
         }
-    }
+    });
 }
 
 function updateRatingState(rating: number): void {
     currentRating = rating;
     setActiveState(rating);
 
-    if (isHTMLFormElement(feedbackForm)) {
+    if (isHTMLFormElement(feedbackArea)) {
         if (rating > 0 && rating <= 3) {
-            feedbackForm.classList.add('is-text-active');
+            feedbackArea.classList.add('is-text-active');
         } else {
-            feedbackForm.classList.remove('is-text-active');
+            feedbackArea.classList.remove('is-text-active');
         }
     }
 
     let isTextEntered = false;
-    if (isHTMLTextAreaElement(feedbackText)) {
-        isTextEntered = feedbackText.value.trim() !== '';
+    if (isHTMLTextAreaElement(feedbackForm)) {
+        isTextEntered = feedbackForm.value.trim() !== '';
     }
     if (isHTMLButtonElement(submitButton)) {
         if (rating >= 4 || isTextEntered) {
             submitButton.disabled = false;
-            if (rating >= 4 && isHTMLTextAreaElement(feedbackText)) {
+            if (rating >= 4 && isHTMLTextAreaElement(feedbackForm)) {
                 localStorage.removeItem(TEXT_STORAGE_KEY);
-                feedbackText.value = '';
+                feedbackForm.value = '';
             }
         } else {
             submitButton.disabled = true;
@@ -99,66 +83,52 @@ if (isHTMLElement(starsContainer)) {
     );
 
     if (allStars.length > 0) {
-        const firstStar = allStars[0];
-        const lastStar = allStars[allStars.length - 1];
-
-        const resetStars = (): void => {
-            allStars.forEach((star) => {
-                star.className = 'star';
-            });
-        };
-
         allStars.forEach((star, index) => {
             const rating: number = index + 1;
 
-            star.addEventListener('mouseenter', (): void => {
-                resetStars();
-
-                if (rating === 1) {
-                    firstStar.classList.add('hover-feedback-low');
-                } else if (rating === allStars.length) {
-                    allStars.forEach((s, i) => {
-                        if (i < rating - 1) {
-                            s.classList.add('hover-feedback-normal');
+            star.onmouseenter = (): void => {
+                allStars.forEach((s, i) => {
+                    s.className = 'star';
+                    if (i < rating) {
+                        if (rating === 1 && i === 0) {
+                            s.classList.add('hover-feedback-low');
+                        } else if (rating === allStars.length && i === rating - 1) {
+                            s.classList.add('hover-feedback-high');
                         } else {
-                            lastStar.classList.add('hover-feedback-high');
+                            s.classList.add('hover-feedback-normal');
                         }
-                    });
-                } else {
-                    for (let i = 0; i < rating; i++) {
-                        allStars[i].classList.add('hover-feedback-normal');
                     }
-                }
-            });
+                });
+            };
 
-            star.addEventListener('click', (): void => {
+            star.onclick = (): void => {
                 updateRatingState(rating);
 
                 setTimeout(() => {
                     localStorage.setItem(RATING_STORAGE_KEY, JSON.stringify(rating));
                     console.log(`Рейтинг ${rating} сохранен для синхронизации.`);
                 }, 1000);
-            });
+            };
         });
 
-        starsContainer.addEventListener('mouseleave', () => {
+        starsContainer.onmouseleave = () => {
             setActiveState(currentRating);
-        });
+        };
     }
 }
 
-if (isHTMLTextAreaElement(feedbackText)) {
+if (isHTMLTextAreaElement(feedbackForm)) {
     let textSyncTimeout: ReturnType<typeof setTimeout>;
-    feedbackText.addEventListener('input', (): void => {
-        feedbackText.style.height = 'auto';
-        feedbackText.style.height = `${feedbackText.scrollHeight}px`;
+    feedbackForm.addEventListener('input', (): void => {
+        feedbackForm.style.height = 'auto';
+        feedbackForm.style.height = `${feedbackForm.scrollHeight}px`;
 
         updateRatingState(currentRating);
 
         clearTimeout(textSyncTimeout);
 
         textSyncTimeout = setTimeout(() => {
-            localStorage.setItem(TEXT_STORAGE_KEY, feedbackText.value);
+            localStorage.setItem(TEXT_STORAGE_KEY, feedbackForm.value);
             console.log(`Текст отзыва сохранен для синхронизации.`);
         }, 2000);
     });
@@ -177,7 +147,7 @@ if (isHTMLTextAreaElement(feedbackText)) {
         if (event.key === TEXT_STORAGE_KEY && event.newValue) {
             console.log('Получено событие синхронизации текста!');
 
-            feedbackText.value = event.newValue;
+            feedbackForm.value = event.newValue;
             updateRatingState(currentRating);
         }
         if (event.key === CLOSE_TABS_KEY && event.newValue === 'Y') {
@@ -186,14 +156,13 @@ if (isHTMLTextAreaElement(feedbackText)) {
     });
 }
 
-if (isHTMLFormElement(feedbackForm)) {
-    feedbackForm.addEventListener('submit', (event: SubmitEvent) => {
+if (isHTMLFormElement(feedbackArea)) {
+    feedbackArea.addEventListener('submit', (event: SubmitEvent) => {
         event.preventDefault();
 
         localStorage.removeItem(TEXT_STORAGE_KEY);
-        if (isHTMLTextAreaElement(feedbackText)) {
-            // Доп. проверка
-            feedbackText.value = '';
+        if (isHTMLTextAreaElement(feedbackForm)) {
+            feedbackForm.value = '';
         }
         localStorage.removeItem(RATING_STORAGE_KEY);
         updateRatingState(0);
@@ -209,10 +178,10 @@ if (isHTMLFormElement(feedbackForm)) {
 }
 
 // ================ИНИЦИАЛИЗАЦИЯ==============================
-if (isHTMLTextAreaElement(feedbackText)) {
+if (isHTMLTextAreaElement(feedbackForm)) {
     const savedText = localStorage.getItem(TEXT_STORAGE_KEY);
     if (savedText) {
-        feedbackText.value = savedText;
+        feedbackForm.value = savedText;
     }
 
     const savedRatingRaw = localStorage.getItem(RATING_STORAGE_KEY);
@@ -229,6 +198,5 @@ if (isHTMLTextAreaElement(feedbackText)) {
     } else {
         updateRatingState(0);
     }
-
     // ===========================================================
 }

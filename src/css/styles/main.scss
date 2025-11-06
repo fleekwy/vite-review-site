@@ -36,14 +36,14 @@ main {
     margin-bottom: 15rem;
 }
 
-.feedback-interaction-area.is-text-active .feedback-text {
+.feedback-interaction-area.is-text-active .feedback-form {
     opacity: 0.8;
     max-height: 35rem;
     margin-top: 10px;
     padding: 1.2rem;
 }
 
-.feedback-text {
+.feedback-form {
     color: var(--text-secondary);
     background-color: var(--bg-feedback-form);
 
@@ -68,7 +68,7 @@ main {
     padding-top: 0;
 }
 
-.feedback-text::placeholder {
+.feedback-form::placeholder {
     color: var(--placeholder-color);
     opacity: 1;
 }

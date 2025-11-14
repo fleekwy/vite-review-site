@@ -6,7 +6,7 @@ if (main_header) {
     let spaceTimeout: ReturnType<typeof setTimeout>;
 
     document.addEventListener('click', (event: MouseEvent): void => {
-        if (event.target instanceof Element && !event.target.closest('button, textarea, a')) {
+        if (event.target instanceof Element && !event.target.closest('a')) {
             main_header.classList.add('main-header-clicked');
             main_header.classList.remove('main-header-scrolled');
             main_header.classList.remove('main-header-spaced');
@@ -32,7 +32,7 @@ if (main_header) {
     });
 
     document.addEventListener('keydown', (event: KeyboardEvent) => {
-        if (event.target instanceof Element && !event.target.closest('textarea')) {
+        if (event.target instanceof Element) {
             if (event.code === 'Space') {
                 main_header.classList.add('main-header-spaced');
                 main_header.classList.remove('main-header-clicked');

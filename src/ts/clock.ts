@@ -74,8 +74,6 @@ if (clockElement) {
     // };
 
     const changeLang = (event: MouseEvent): void => {
-        event.stopPropagation();
-
         const button: unknown = event.currentTarget;
         if (isHTMLElement(button)) {
             const newLang: unknown = button.dataset.lang;

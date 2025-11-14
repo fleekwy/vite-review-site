@@ -77,6 +77,30 @@ function updateRatingState(rating: number): void {
     }
 }
 
+function InitializePage(): void {
+    if (isHTMLTextAreaElement(feedbackForm)) {
+        const savedText = localStorage.getItem(TEXT_STORAGE_KEY);
+        if (savedText) {
+            feedbackForm.value = savedText;
+        }
+
+        const savedRatingRaw = localStorage.getItem(RATING_STORAGE_KEY);
+        if (savedRatingRaw) {
+            try {
+                const savedRating = JSON.parse(savedRatingRaw);
+                if (typeof savedRating === 'number') {
+                    updateRatingState(savedRating);
+                }
+            } catch (e) {
+                console.error('Failed to parse initial rating:', e);
+                updateRatingState(0);
+            }
+        } else {
+            updateRatingState(0);
+        }
+    }
+}
+
 if (isHTMLElement(starsContainer)) {
     const allStars: HTMLElement[] = Array.from(starsContainer.children).filter(
         (child) => child instanceof HTMLElement
@@ -148,6 +172,10 @@ if (isHTMLTextAreaElement(feedbackForm)) {
             console.log('Получено событие синхронизации текста!');
 
             feedbackForm.value = event.newValue;
+
+            feedbackForm.style.height = 'auto';
+            feedbackForm.style.height = `${feedbackForm.scrollHeight}px`;
+
             updateRatingState(currentRating);
         }
         if (event.key === CLOSE_TABS_KEY && event.newValue === 'Y') {
@@ -163,6 +191,7 @@ if (isHTMLFormElement(feedbackArea)) {
         localStorage.removeItem(TEXT_STORAGE_KEY);
         if (isHTMLTextAreaElement(feedbackForm)) {
             feedbackForm.value = '';
+            feedbackForm.style.height = 'auto';
         }
         localStorage.removeItem(RATING_STORAGE_KEY);
         updateRatingState(0);
@@ -177,26 +206,4 @@ if (isHTMLFormElement(feedbackArea)) {
     });
 }
 
-// ================ИНИЦИАЛИЗАЦИЯ==============================
-if (isHTMLTextAreaElement(feedbackForm)) {
-    const savedText = localStorage.getItem(TEXT_STORAGE_KEY);
-    if (savedText) {
-        feedbackForm.value = savedText;
-    }
-
-    const savedRatingRaw = localStorage.getItem(RATING_STORAGE_KEY);
-    if (savedRatingRaw) {
-        try {
-            const savedRating = JSON.parse(savedRatingRaw);
-            if (typeof savedRating === 'number') {
-                updateRatingState(savedRating);
-            }
-        } catch (e) {
-            console.error('Failed to parse initial rating:', e);
-            updateRatingState(0);
-        }
-    } else {
-        updateRatingState(0);
-    }
-    // ===========================================================
-}
+InitializePage();
